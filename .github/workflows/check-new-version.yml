@@ -1,0 +1,56 @@
+name: Check for new Codex version
+
+on:
+  schedule:
+    # Daily
+    - cron: '0 0 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Get latest published version from npm
+        id: npm
+        run: |
+          VERSION=$(npm view @openai/codex version)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check if this version was already released
+        id: check
+        run: |
+          if git rev-parse "v${{ steps.npm.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create release for new version
+        id: create-release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.npm.outputs.version }}" \
+            --title "v${{ steps.npm.outputs.version }}" \
+            --notes "Codex version ${{ steps.npm.outputs.version }}
+            Automated release tracking @openai/codex@${{ steps.npm.outputs.version }} on npm."
+          mkdir -p release-state
+          echo "version=${{ steps.npm.outputs.version }}" >> release-state/release.env
+          echo "tag=v${{ steps.npm.outputs.version }}" >> release-state/release.env
+
+      - name: Save release state artifact
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: release-metadata
+          path: release-state/
+          retention-days: 1
