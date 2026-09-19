@@ -5,6 +5,9 @@ ARG CODEX_VERSION=latest
 ENV WORKSPACE="/workspace"
 ENV CODEX_HOME=$WORKSPACE/.codex-cfg
 WORKDIR $WORKSPACE
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 RUN npm install -g @openai/codex@${CODEX_VERSION#v}
 
 CMD ["codex"]
