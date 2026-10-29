@@ -53,6 +53,21 @@ docker run -it --rm \
     ghcr.io/antonyho/docker-codex
 ```
 
+## Image tags
+
+Two variants are published to `ghcr.io/antonyho/docker-codex`:
+
+| Base image | Tags |
+| --- | --- |
+| `node:current-slim` (default) | `latest`, `node`, `<version>`, `<version>-node` (e.g. `0.1.2`, `0.1`, `0`, `0.1.2-node`, `0.1-node`, `0-node`) |
+| `ubuntu:26.04` | `ubuntu`, `<version>-ubuntu` (e.g. `0.1.2-ubuntu`, `0.1-ubuntu`, `0-ubuntu`) |
+
+To build the Ubuntu variant locally:
+
+```sh
+docker build -f Dockerfile.ubuntu -t codex:ubuntu .
+```
+
 ## Configuration
 
 The Dockerfile accepts `CODEX_VERSION`, which defaults to `latest`:

@@ -1,5 +1,9 @@
 FROM node:current-slim
 
+LABEL org.opencontainers.image.source="https://github.com/antonyho/docker-codex"
+LABEL org.opencontainers.image.description="OpenAI Codex CLI in a Docker container"
+LABEL org.opencontainers.image.licenses="MIT"
+
 ARG CODEX_VERSION=latest
 
 ENV WORKSPACE="/workspace"
